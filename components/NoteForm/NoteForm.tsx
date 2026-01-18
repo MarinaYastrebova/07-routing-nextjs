@@ -1,3 +1,4 @@
+'use client';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
