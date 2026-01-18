@@ -1,3 +1,4 @@
+'use client';
 import { useEffect } from 'react';
 import type { ReactNode, MouseEvent } from 'react';
 import { createPortal } from 'react-dom';

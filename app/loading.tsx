@@ -1,4 +1,4 @@
-import css from './notes/NotesPage.module.css';
+import css from './loading.module.css';
 
 export default function Loading() {
   return (
