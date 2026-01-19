@@ -1,48 +1,70 @@
 'use client';
-import { useEffect } from 'react';
+
+import { useEffect, useCallback } from 'react';
 import type { ReactNode, MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import css from './Modal.module.css';
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   children: ReactNode;
+  isOpen?: boolean; // Робимо необов'язковим
+  onClose?: () => void; // Робимо необов'язковим
 }
 
-const Modal = ({ isOpen, onClose, children }: ModalProps) => {
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
+export default function Modal({ children, isOpen = true, onClose }: ModalProps) {
+  const router = useRouter();
 
+  // Логіка закриття:
+  // Якщо передали onClose (Create Note) -> викликаємо його.
+  // Якщо НЕ передали (Note Preview) -> робимо навігацію назад.
+  const handleClose = useCallback(() => {
+    if (onClose) {
+      onClose();
+    } else {
+      router.back();
+    }
+  }, [onClose, router]);
+
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    },
+    [handleClose]
+  );
+
+  useEffect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('keydown', onKeyDown);
       document.body.style.overflow = 'hidden';
     }
-
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onKeyDown]);
 
   const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      handleClose();
     }
   };
 
+  // Якщо isOpen === false, нічого не малюємо
   if (!isOpen) return null;
 
+  // Перевірка на браузер (SSR)
+  if (typeof window === 'undefined') return null;
+
   return createPortal(
-    <div className={css.backdrop} role="dialog" aria-modal="true" onClick={handleBackdropClick}>
-      <div className={css.modal}>{children}</div>
+    <div className={css.backdrop} onClick={handleBackdropClick}>
+      <div className={css.modal} onClick={e => e.stopPropagation()}>
+        <button className={css.closeBtn} onClick={handleClose} type="button" aria-label="Close">
+          ×
+        </button>
+        {children}
+      </div>
     </div>,
     document.body
   );
-};
-
-export default Modal;
+}

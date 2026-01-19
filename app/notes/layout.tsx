@@ -7,11 +7,12 @@ interface FilterLayoutProps {
   modal?: ReactNode;
 }
 
-export default function FilterLayout({ children, sidebar }: FilterLayoutProps) {
+export default function FilterLayout({ children, sidebar, modal }: FilterLayoutProps) {
   return (
     <div className={css.container}>
       <div className={css.sidebar}>{sidebar}</div>
-      <div className={css.notesWrapper}>{children}</div>?
+      <div className={css.notesWrapper}>{children}</div>
+      {modal}
     </div>
   );
 }

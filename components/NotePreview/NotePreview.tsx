@@ -1,12 +1,14 @@
+'use client';
+import { useRouter } from 'next/navigation';
 import { Note } from '@/types/note';
 import css from './NotePreview.module.css';
 
 interface NotePreviewProps {
   note: Note;
-  onClose: () => void;
 }
 
-export default function NotePreview({ note, onClose }: NotePreviewProps) {
+export default function NotePreview({ note }: NotePreviewProps) {
+  const router = useRouter();
   return (
     <div className={css.container}>
       <div className={css.item}>
@@ -19,7 +21,7 @@ export default function NotePreview({ note, onClose }: NotePreviewProps) {
 
         <p className={css.date}>Created: {new Date(note.createdAt).toLocaleDateString()}</p>
 
-        <button onClick={onClose} className={css.backBtn} type="button">
+        <button onClick={() => router.back()} className={css.backBtn} type="button">
           ← Back to notes
         </button>
       </div>
