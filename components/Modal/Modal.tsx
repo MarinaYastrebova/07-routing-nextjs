@@ -15,9 +15,6 @@ interface ModalProps {
 export default function Modal({ children, isOpen = true, onClose }: ModalProps) {
   const router = useRouter();
 
-  // Логіка закриття:
-  // Якщо передали onClose (Create Note) -> викликаємо його.
-  // Якщо НЕ передали (Note Preview) -> робимо навігацію назад.
   const handleClose = useCallback(() => {
     if (onClose) {
       onClose();
@@ -59,9 +56,9 @@ export default function Modal({ children, isOpen = true, onClose }: ModalProps) 
   return createPortal(
     <div className={css.backdrop} onClick={handleBackdropClick}>
       <div className={css.modal} onClick={e => e.stopPropagation()}>
-        <button className={css.closeBtn} onClick={handleClose} type="button" aria-label="Close">
+        {/* <button className={css.closeBtn} onClick={handleClose} type="button" aria-label="Close">
           ×
-        </button>
+        </button> */}
         {children}
       </div>
     </div>,

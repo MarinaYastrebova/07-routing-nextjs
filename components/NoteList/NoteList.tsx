@@ -28,7 +28,7 @@ const NoteList = ({ notes }: NoteListProps) => {
     <ul className={css.list}>
       {notes.map(note => (
         <li key={note.id} className={css.listItem}>
-          <Link href={`/notes/${note.id}`} className={css.link}>
+          <Link href={`?noteId=${note.id}`} className={css.link} scroll={false}>
             <h2 className={css.title}>{note.title}</h2>
             <p className={css.content}>{note.content}</p>
             <div className={css.footer}>
