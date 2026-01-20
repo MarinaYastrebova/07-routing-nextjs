@@ -12,7 +12,7 @@ import NotePreview from '@/components/NotePreview/NotePreview';
 import css from './page.module.css';
 
 type Props = {
-  params: Promise<{ tag: string[] }>;
+  params: Promise<{ slug: string[] }>;
 };
 
 export default function NotesByTag({ params }: Props) {
@@ -21,17 +21,16 @@ export default function NotesByTag({ params }: Props) {
   const noteId = searchParams.get('noteId'); // Отримуємо ID з URL
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [tag, setTag] = useState<string[]>([]);
+  const [slug, setSlug] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const perPage = 12;
 
   useEffect(() => {
-    params.then(p => setTag(p.tag));
+    params.then(p => setSlug(p.slug));
   }, [params]);
 
-  const tagFilter = tag[0] === 'all' ? undefined : tag[0];
+  const tagFilter = slug[0] === 'all' ? undefined : slug[0];
 
-  // Запит для списку нотаток
   const { data: response, isLoading } = useQuery({
     queryKey: ['notes', tagFilter, page],
     queryFn: () =>
@@ -40,7 +39,7 @@ export default function NotesByTag({ params }: Props) {
         page,
         perPage,
       }),
-    enabled: tag.length > 0,
+    enabled: slug.length > 0,
   });
 
   // Запит для окремої нотатки (якщо є noteId в URL)
@@ -64,10 +63,10 @@ export default function NotesByTag({ params }: Props) {
   };
 
   const handleNoteModalClose = () => {
-    router.back(); // Повертаємося назад, прибираючи ?noteId= з URL
+    router.back();
   };
 
-  if (tag.length === 0) return <p>Loading...</p>;
+  if (slug.length === 0) return <p>Loading...</p>;
 
   const totalPages = response?.totalPages || 0;
 
@@ -75,7 +74,7 @@ export default function NotesByTag({ params }: Props) {
     <>
       <div className={css.wrapper}>
         <div className={css.header}>
-          <h1 className={css.title}>{tag[0] === 'all' ? 'All Notes' : `${tag[0]} Notes`}</h1>
+          <h1 className={css.title}>{slug[0] === 'all' ? 'All Notes' : `${slug[0]} Notes`}</h1>
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className={css.createButton}
@@ -100,12 +99,10 @@ export default function NotesByTag({ params }: Props) {
         )}
       </div>
 
-      {/* Модалка для створення нотатки */}
       <Modal isOpen={isCreateModalOpen} onClose={handleCreateModalClose}>
         <NoteForm onCancel={handleCreateModalClose} onSuccess={handleNoteCreated} />
       </Modal>
 
-      {/* Модалка для перегляду нотатки */}
       {noteId && (
         <Modal isOpen={true} onClose={handleNoteModalClose}>
           {isNoteLoading ? (

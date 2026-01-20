@@ -4,15 +4,13 @@ import css from './LayoutNotes.module.css';
 interface FilterLayoutProps {
   children: ReactNode;
   sidebar: ReactNode;
-  modal?: ReactNode;
 }
 
-export default function FilterLayout({ children, sidebar, modal }: FilterLayoutProps) {
+export default function FilterLayout({ children, sidebar }: FilterLayoutProps) {
   return (
     <div className={css.container}>
       <div className={css.sidebar}>{sidebar}</div>
       <div className={css.notesWrapper}>{children}</div>
-      {modal}
     </div>
   );
 }
