@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchNotes } from '@/lib/api';
-import { FetchNotesParams } from '@/lib/api';
+import { useDebouncedCallback } from 'use-debounce';
+import { fetchNotes, FetchNotesParams } from '@/lib/api';
 import NoteList from '@/components/NoteList/NoteList';
+import SearchBox from '@/components/SearchBox/SearchBox';
 import Pagination from '@/components/Pagination/Pagination';
 import Modal from '@/components/Modal/Modal';
 import NoteForm from '@/components/NoteForm/NoteForm';
@@ -17,18 +18,25 @@ interface NotesClientProps {
 export default function NotesClient({ tag }: NotesClientProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const perPage = 12;
 
   const tagFilter = tag === 'all' ? undefined : tag;
 
   const { data: response, isLoading } = useQuery({
-    queryKey: ['notes', tagFilter, page],
+    queryKey: ['notes', tagFilter, page, searchTerm],
     queryFn: () => {
       const queryParams: FetchNotesParams = { page, perPage };
       if (tagFilter) queryParams.tag = tagFilter;
+      if (searchTerm) queryParams.search = searchTerm;
       return fetchNotes(queryParams);
     },
   });
+
+  const handleSearchChange = useDebouncedCallback((value: string) => {
+    setSearchTerm(value);
+    setPage(1);
+  }, 500);
 
   const handleCreateModalClose = () => {
     setIsCreateModalOpen(false);
@@ -48,8 +56,11 @@ export default function NotesClient({ tag }: NotesClientProps) {
   return (
     <>
       <div className={css.wrapper}>
-        <div className={css.header}>
-          <h1 className={css.title}>{tag === 'all' ? 'All Notes' : `${tag} Notes`}</h1>
+        <div className={css.toolbar}>
+          <SearchBox value={searchTerm} onChange={handleSearchChange} />
+          {!isLoading && totalPages > 1 && (
+            <Pagination pageCount={totalPages} currentPage={page} onPageChange={handlePageChange} />
+          )}
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className={css.createButton}
@@ -58,10 +69,6 @@ export default function NotesClient({ tag }: NotesClientProps) {
             Create Note +
           </button>
         </div>
-
-        {!isLoading && totalPages > 1 && (
-          <Pagination pageCount={totalPages} currentPage={page} onPageChange={handlePageChange} />
-        )}
 
         {isLoading ? (
           <p>Loading notes...</p>
